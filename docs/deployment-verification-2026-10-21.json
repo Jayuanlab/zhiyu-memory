@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-21T09:17:43.046Z",
+  "passed": true,
+  "serviceSourceHash": "07d2e98f1234897b4cd4e813230ed804689fe9f98f682232313114d88ecdf4d0",
+  "applicationSourceHash": "e9de961fbe59b768ee40e4eadd06f810e5214cd524f1c99756cdcae5b3de6678",
+  "independentTests": 28,
+  "installedProjectGroups": 8,
+  "supervisorRecovery": true,
+  "explicitStopRespected": true,
+  "dailyBootstrap": true,
+  "productionRemoteVerified": true,
+  "localRollbackVerified": true,
+  "deploymentScope": "loopback_zhiyu_compatibility_adapter",
+  "privateDataUploaded": false
+}

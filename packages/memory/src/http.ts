@@ -4,6 +4,7 @@ import { object, keys, fail } from "./validation";
 
 /** The transport receives only trusted authenticated clients; it cannot issue identity or install consumers. */
 export function createMemoryHttpServer(options: {
+	maxBodyBytes?: number;
 	clientForBearer: (token: string) => Promise<{
 		capabilities(): unknown;
 		execute(input: unknown): Promise<unknown>;
@@ -17,6 +18,7 @@ export function createMemoryHttpServer(options: {
 			execute(input: unknown): Promise<unknown>;
 			read(input: unknown): Promise<unknown>;
 		};
+		projectCall?: (input: unknown) => Promise<unknown>;
 	}>;
 }) {
 	async function body(req: IncomingMessage) {
@@ -27,7 +29,7 @@ export function createMemoryHttpServer(options: {
 		let length = 0;
 		for await (const chunk of req) {
 			length += chunk.length;
-			if (length > 262144) fail("request_too_large", 413);
+			if (length > (options.maxBodyBytes ?? 262144)) fail("request_too_large", 413);
 			chunks.push(Buffer.from(chunk));
 		}
 		try {
@@ -55,6 +57,10 @@ export function createMemoryHttpServer(options: {
 			const input = await body(req);
 			let result: unknown;
 			switch (req.url) {
+				case "/v1/project/call":
+					if (!client.projectCall) fail("project_not_installed", 404);
+					result = await client.projectCall(input);
+					break;
 				case "/v1/commands":
 					result = await client.execute(input);
 					break;

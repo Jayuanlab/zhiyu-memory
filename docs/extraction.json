@@ -1,0 +1,187 @@
+{
+  "upstream": "https://github.com/Jayuanlab/zhiyu",
+  "commit": "f84d761f47897cb1a2e49ed63a6a2acfa880a534",
+  "extractedAt": "2026-10-21T08:04:44.314Z",
+  "files": [
+    {
+      "source": "packages/memory/package.json",
+      "path": "packages/memory/package.json",
+      "sha256": "8ef15753e0d5311f81c09730d90c638ca846aaa75928137f603147f167ca3c93"
+    },
+    {
+      "source": "packages/memory/README.md",
+      "path": "packages/memory/README.md",
+      "sha256": "bba02cc23a8ff0f03555f4574da43b7d25f613f6bd2ff8601f2fc65dd43a5b86"
+    },
+    {
+      "source": "packages/memory/tsconfig.json",
+      "path": "packages/memory/tsconfig.json",
+      "sha256": "f20453cb5676e1bd528545523e89c8a2ecefa4a2b3c5479f8abc5efd2971fd5e"
+    },
+    {
+      "source": "packages/memory/src/context.ts",
+      "path": "packages/memory/src/context.ts",
+      "sha256": "9602d373b4a5c9f46379fc0e32458b0856eb29e3a83b9f4b40470df1fa624f0b"
+    },
+    {
+      "source": "packages/memory/src/contracts.ts",
+      "path": "packages/memory/src/contracts.ts",
+      "sha256": "1859c33e26b9252142b26c6ec5d0d839af85d85ba0376226f8d9b2aea9b6a26b"
+    },
+    {
+      "source": "packages/memory/src/core.ts",
+      "path": "packages/memory/src/core.ts",
+      "sha256": "3751c21a67077ad83a586a663e955c0e365b15ebd546f29908f7ce2bf6f387b7"
+    },
+    {
+      "source": "packages/memory/src/governance.ts",
+      "path": "packages/memory/src/governance.ts",
+      "sha256": "ca0596cc6eb75cb893e5788956deb2825d3235209f32dd3b68af928d71441fbd"
+    },
+    {
+      "source": "packages/memory/src/host.ts",
+      "path": "packages/memory/src/host.ts",
+      "sha256": "2c96aa44ffae7323f235665e9e1b0315036969198201ccf6d2d77cd76a1b61bd"
+    },
+    {
+      "source": "packages/memory/src/http.ts",
+      "path": "packages/memory/src/http.ts",
+      "sha256": "6552363ccd1ac9da3f9137a108076c5142372a70736383d64bede2aac75421e3"
+    },
+    {
+      "source": "packages/memory/src/index.ts",
+      "path": "packages/memory/src/index.ts",
+      "sha256": "356f0f4a52e14c8a1b6e70264b131679bdca4acb9bf3a97498e3cf076ca46743"
+    },
+    {
+      "source": "packages/memory/src/knowledge-contracts.ts",
+      "path": "packages/memory/src/knowledge-contracts.ts",
+      "sha256": "f0dfc67d341033c2e0c32a02a44dacba70944cf725d73ec2a8b48610f8e7c5d6"
+    },
+    {
+      "source": "packages/memory/src/knowledge.ts",
+      "path": "packages/memory/src/knowledge.ts",
+      "sha256": "62e386e20bd2852694ed933021eda351212595c4247a42fe8f994330c73afec7"
+    },
+    {
+      "source": "packages/memory/src/policy.ts",
+      "path": "packages/memory/src/policy.ts",
+      "sha256": "08c4ad9e3230633ff47f0f7cf5c6a413582ee3b315b2d17bb810810d2eb61376"
+    },
+    {
+      "source": "packages/memory/src/ports.ts",
+      "path": "packages/memory/src/ports.ts",
+      "sha256": "f1eacaa048412a011dbfd9f1aa1c34acdbb6efccceb4da9d2420ef9580edf8a6"
+    },
+    {
+      "source": "packages/memory/src/sources.ts",
+      "path": "packages/memory/src/sources.ts",
+      "sha256": "7021910f59ecdc9c78f63d157b30f3039db203b57f4ac4d05478fd54b7a3e9b8"
+    },
+    {
+      "source": "packages/memory/src/use.ts",
+      "path": "packages/memory/src/use.ts",
+      "sha256": "059a4d77973d26347f9d23ce2e10569613f8d8ec4a136f2fd18e5dad81e457bd"
+    },
+    {
+      "source": "packages/memory/src/validation.ts",
+      "path": "packages/memory/src/validation.ts",
+      "sha256": "ffc9c82749f3b573e481c74169550e3f98b469199f5ff6a5fd2ffd0bafa9ee52"
+    },
+    {
+      "source": "packages/memory/tests/governance-use.test.ts",
+      "path": "packages/memory/tests/governance-use.test.ts",
+      "sha256": "ca642475397d6afb9dc6a29f63a1cd2e14b792f8a334342d70197aa6a8368b8d"
+    },
+    {
+      "source": "packages/memory/tests/knowledge.test.ts",
+      "path": "packages/memory/tests/knowledge.test.ts",
+      "sha256": "175191496ca62ba04598500c3f7a93c34cb8e22aa4840d926b35ee21b412f66e"
+    },
+    {
+      "source": "packages/memory/tests/observations.test.ts",
+      "path": "packages/memory/tests/observations.test.ts",
+      "sha256": "8f04ada1bf9c159784eb769da567e0db00256e2c28126a07d22363a06ed9692a"
+    },
+    {
+      "source": "packages/memory/tests/policy.test.ts",
+      "path": "packages/memory/tests/policy.test.ts",
+      "sha256": "8fb222bddd507c91963fc323289eda2e7afd0b300220440bb8965ffcba0f1aa1"
+    },
+    {
+      "source": "packages/memory-postgres/package.json",
+      "path": "packages/memory-postgres/package.json",
+      "sha256": "ddc7631fa3b72fb4ea657a410cd3b1951a5baf9752176440abc3ed73e84fbcd5"
+    },
+    {
+      "source": "packages/memory-postgres/README.md",
+      "path": "packages/memory-postgres/README.md",
+      "sha256": "b51abbe75afd8e1e14b9c249ff551a4d907ff222c7fd9c1f1fbb1f5e559693d1"
+    },
+    {
+      "source": "packages/memory-postgres/src/index.ts",
+      "path": "packages/memory-postgres/src/index.ts",
+      "sha256": "ef8dc2729c9af4a0fd3b6ab7d87793aea1ffad24dde5bf38bb216bf4f72c10d4"
+    },
+    {
+      "source": "packages/memory-postgres/src/knowledge.ts",
+      "path": "packages/memory-postgres/src/knowledge.ts",
+      "sha256": "af82cc6ed3cf6dd6e744515e8928b48c5440fc06b3885a2fb69070aa29c0f8ca"
+    },
+    {
+      "source": "packages/memory-postgres/src/service-identity.ts",
+      "path": "packages/memory-postgres/src/service-identity.ts",
+      "sha256": "9711c8740d2c3ffc730179f44640678f8f88f7028d63e0e4eca4964eb05e9503"
+    },
+    {
+      "source": "examples/memory-project/acceptance.ts",
+      "path": "examples/memory-project/acceptance.ts",
+      "sha256": "2a2e29e7a94ec4b8aaee09b9ce251af213370e11fe107720776e45b5cf4e1db3"
+    },
+    {
+      "source": "examples/memory-project/knowledge-project.ts",
+      "path": "examples/memory-project/knowledge-project.ts",
+      "sha256": "229e8f72e1b74c80ec52d047ddd4a5e2155ad5988e274b799c23e78eb02acf3e"
+    },
+    {
+      "source": "examples/memory-project/policy.ts",
+      "path": "examples/memory-project/policy.ts",
+      "sha256": "f85f47a7788305b8541b66caa45f3c5ab620392a47e4984d8158589081487e01"
+    },
+    {
+      "source": "examples/memory-project/README.md",
+      "path": "examples/memory-project/README.md",
+      "sha256": "581e412faff6257796219f098140be38376841538697895976f27823a72ef6eb"
+    },
+    {
+      "source": "examples/memory-project/record-loop.ts",
+      "path": "examples/memory-project/record-loop.ts",
+      "sha256": "64e3279adc7bb43364ab9d82d1dd15d688891d02e2b37f6060cc0a088301bf3a"
+    },
+    {
+      "source": "examples/memory-project/service-acceptance.ts",
+      "path": "examples/memory-project/service-acceptance.ts",
+      "sha256": "df87a88d0670b08b7ae6daeb10722ddfd56cf99ac709f784c84f1d6680a08823"
+    },
+    {
+      "source": "examples/memory-project/service-admin.ts",
+      "path": "apps/service/admin.ts",
+      "sha256": "a7b28838696d83226c616181fe821947fe35ed23f38589710a76eddd241c313f"
+    },
+    {
+      "source": "examples/memory-project/service.ts",
+      "path": "apps/service/main.ts",
+      "sha256": "9a72637abb3030762077f5d463f53fa3d82422bce96f196246d24403ec82b7e7"
+    },
+    {
+      "source": "LICENSE",
+      "path": "LICENSE",
+      "sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6"
+    },
+    {
+      "source": "docs/reference/general-memory-service-v1.md",
+      "path": "docs/protocol.md",
+      "sha256": "460d47e73f3837646b2f1b077a27331a11cc9b6940e224e62e9b0cfe4bba8eb7"
+    }
+  ]
+}

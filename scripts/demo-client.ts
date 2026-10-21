@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {createRemoteMemoryClient} from '../packages/memory/src/http';
+import {PROTOCOL} from '../packages/memory/src/contracts';
+const {token}=JSON.parse(fs.readFileSync(process.env.MEMORY_DEMO_CREDENTIAL_FILE ?? 'private/demo-credential.json','utf8'));
+const remote=createRemoteMemoryClient(process.env.MEMORY_DEMO_ORIGIN ?? 'http://127.0.0.1:3640',token);
+const command={protocolVersion:PROTOCOL,kind:'observation.append',commandId:randomUUID(),payload:{source:{sourceId:'demo.build',externalId:'quickstart-'+randomUUID()},observedAt:new Date().toISOString(),content:'先核对运行状态，再决定是否重试。'}};
+const saved=await remote.request('/v1/records/commands',command);
+const replay=await remote.request('/v1/records/commands',command);
+const read=await remote.request('/v1/records/query',{purpose:'current',ref:saved.ref.record});
+assert.equal(saved.receipt.id,replay.receipt.id);
+assert.equal(replay.replayed,true);
+assert.equal(read.content,command.payload.content);
+console.log(JSON.stringify({saved:true,exactRead:true,idempotentRetry:true,receiptId:saved.receipt.id}));

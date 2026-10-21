@@ -1,0 +1,18 @@
+{
+  "verifiedAt": "2026-10-21T08:13:21.194Z",
+  "sourceCommit": "f84d761f47897cb1a2e49ed63a6a2acfa880a534",
+  "typecheck": true,
+  "coreUnitTests": 27,
+  "dependencyIsolation": true,
+  "unchangedCoreSourceFiles": 17,
+  "localIntegrationGroups": 14,
+  "remoteIntegrationGroups": 14,
+  "quickstart": true,
+  "temporaryDatabasesDropped": true,
+  "secretScan": {
+    "files": 52,
+    "findings": 0
+  },
+  "zhiyuModified": false,
+  "productionSwitch": false
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@openzhiyu/memory",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./host": "./src/host.ts",
+    "./ports": "./src/ports.ts",
+    "./policy": "./src/policy.ts",
+    "./sources": "./src/sources.ts",
+    "./governance": "./src/governance.ts",
+    "./context": "./src/context.ts",
+    "./use": "./src/use.ts",
+    "./knowledge": "./src/knowledge.ts",
+    "./knowledge-contracts": "./src/knowledge-contracts.ts",
+    "./http": "./src/http.ts"
+  }
+}

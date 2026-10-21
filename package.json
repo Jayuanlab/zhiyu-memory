@@ -1,0 +1,23 @@
+{
+  "name": "zhiyu-memory",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Standalone provenance-aware memory service with reviewed knowledge and guarded context delivery",
+  "type": "module",
+  "license": "Apache-2.0",
+  "engines": { "node": ">=22.19.0" },
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "start": "node --import tsx apps/service/main.ts",
+    "admin": "node --import tsx apps/service/admin.ts",
+    "typecheck": "tsc -p packages/memory/tsconfig.json",
+    "test": "node --import tsx --test packages/memory/tests/*.test.ts",
+    "test:integration": "node scripts/test-integration.mjs",
+    "check": "npm run typecheck && npm test && node scripts/check-project.mjs",
+    "demo:receiver": "node scripts/demo-receiver.mjs",
+    "demo:seed": "node --import tsx scripts/demo-seed.ts",
+    "demo:client": "node --import tsx scripts/demo-client.ts"
+  },
+  "dependencies": { "postgres": "3.4.5", "tsx": "4.20.5" },
+  "devDependencies": { "@types/node": "22.19.0", "typescript": "5.9.3" }
+}

@@ -14,6 +14,7 @@
     "./use": "./src/use.ts",
     "./knowledge": "./src/knowledge.ts",
     "./knowledge-contracts": "./src/knowledge-contracts.ts",
+    "./embeddings": "./src/embeddings.ts",
     "./http": "./src/http.ts"
   }
 }

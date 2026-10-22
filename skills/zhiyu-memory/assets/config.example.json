@@ -1,0 +1,10 @@
+{
+  "baseUrl": "http://127.0.0.1:3640",
+  "tokenEnv": "ZHIYU_MEMORY_TOKEN",
+  "expectedNamespace": {
+    "tenantId": "example-org",
+    "projectId": "example-project"
+  },
+  "mode": "standard",
+  "timeoutMs": 20000
+}

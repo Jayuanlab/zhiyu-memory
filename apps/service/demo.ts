@@ -4,12 +4,15 @@ import { createServiceIdentityProvider } from "../../packages/memory-postgres/sr
 import { createDevelopmentProject } from "../../examples/memory-project/knowledge-project";
 import type { Identity } from "../../packages/memory/src/ports";
 import { fail } from "../../packages/memory/src/validation";
+import { embeddingFromEnvironment } from "./embedding";
+import { loadStandardProjects } from "./standard-projects";
 
 /** Example deployment composition, not a Zhiyu migration or an unauthenticated bootstrap endpoint. */
 const url = process.env.MEMORY_SERVICE_DATABASE_URL;
 if (!url) throw Error("MEMORY_SERVICE_DATABASE_URL_required");
 const consumerUrl = process.env.MEMORY_SERVICE_CONSUMER_URL;
 if (!consumerUrl) throw Error("MEMORY_SERVICE_CONSUMER_URL_required");
+const semanticSearch = embeddingFromEnvironment();
 const destination = new URL(consumerUrl);
 if (
 	destination.protocol !== "http:" ||
@@ -21,6 +24,7 @@ if (
 const sql = postgres(url, { max: 8, onnotice: () => {} });
 try {
 	const required = [
+		...(semanticSearch ? ["general_memory_embeddings_g6"] : []),
 		"general_memory_observations_g1",
 		"general_memory_commands_g1",
 		"general_memory_reads_g1",
@@ -45,11 +49,15 @@ try {
 }
 const auth = createServiceIdentityProvider(sql),
 	sessions = new WeakMap<object, Identity>();
+const authenticate = async (session: object) => sessions.get(session) ?? fail("untrusted_session", 401);
+const standardProject = await loadStandardProjects(process.env.MEMORY_SERVICE_STANDARD_PROJECTS_FILE,
+  {sql, auth, authenticate, semanticSearch});
 const project = createDevelopmentProject(sql, {
 	authenticate: async (session) =>
 		sessions.get(session) ?? fail("untrusted_session", 401),
 	authorize: auth.authorize,
 	remoteBinding: auth.binding,
+	semanticSearch,
 	deliver: async (pack) => {
 		const response = await fetch(destination, {
 			method: "POST",
@@ -68,7 +76,7 @@ const server = createMemoryHttpServer({
 		const identity = await auth.authenticate(token),
 			session = Object.freeze({});
 		sessions.set(session, identity);
-		return project.forSession(session);
+		return (standardProject(identity) ?? project).forSession(session);
 	},
 });
 server.listen(Number(process.env.MEMORY_SERVICE_PORT ?? 0), "127.0.0.1", () => {

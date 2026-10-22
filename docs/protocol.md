@@ -26,7 +26,7 @@ flowchart LR
 
 被控对象是“某个固定上下文能否交给某个登记消费者”。观测输入是数据库中的当前凭证、成员权限、来源完整版本、授权、复查期限与策略版本。准入事务持有这些记录的共享锁以及凭证行更新锁，审计提交成功后才调用消费者。事务提交失败时既不消费凭证，也不发送。
 
-数据库是共享可信基础设施；HTTP 调用方不拥有 SQL 权限。namespace 来自认证记录，不从请求体、URL、owner 或模型参数推导。共享部署只覆盖新通用表和项目显式带 namespace 的来源/权限表；旧知语 schema 没有因此获得多租户能力。对象文件、向量索引、跨地域复制不在当前实现范围。
+数据库是共享可信基础设施；HTTP 调用方不拥有 SQL 权限。namespace 来自认证记录，不从请求体、URL、owner 或模型参数推导。共享部署只覆盖新通用表和项目显式带 namespace 的来源/权限表；旧知语 schema 没有因此获得多租户能力。可选语义召回使用独立向量缓存和精确扫描，见[向量检索说明](semantic-search.md)；对象文件、近似向量索引、跨地域复制不在当前实现范围。
 
 ## 身份与管理员
 
@@ -64,11 +64,13 @@ node --import tsx apps/service/admin.ts revoke D:/private/memory-revoke.json
 | POST `/v1/read` | current/receipt/use_receipt，治理读取不能冒充使用准入 |
 | POST `/v1/evidence` | 固定来源版本精确摘录 |
 | POST `/v1/recall` | 召回快照供展示；返回 JSON 本身没有出站权限 |
-| POST `/v1/use/prepare` | `{recall:{scope,query,maxBytes},consumerId,purpose}`：召回并签发一次性凭证 |
+| POST `/v1/use/prepare` | `{recall:{scope,query,maxBytes,retrieval?},consumerId,purpose}`：召回并签发一次性凭证 |
 | POST `/v1/use/dispatch` | `{credential,consumerId,purpose}`：最终重验并交付服务端登记消费者 |
 | POST `/v1/use/status` | 同上三个字段，查询 issued/expired/admitted/dispatched/outcome_unknown 与 admissionId |
 
 命令协议继续为 `general-memory.v1-draft`，传输能力标识为 `general-memory.http.v1`。当前是已列出 facet 的实现，并未把设计中的全部拟议命令伪装成支持。严格拒绝未知请求字段；调用方不能传 namespace、已核验状态、可替换 Pack、URL 或任意 proof。
+
+召回可选 `retrieval: {mode: "keyword" | "vector" | "hybrid", minSimilarity?: number}`。语义模式要求服务端安装 embedding 提供方和持久化存储，阈值为 `[-1,1]`；关键词模式不接受阈值。来源、审核和权限核验先于知识 embedding；提供方异常终止召回。安全约束不受相关度阈值过滤，完整放不下时明确拒绝。
 
 `createRemoteMemoryClient` 可直接在另一个 Node 进程调用这些路径；不需要引入 Next、Brain、知语 session 或旧表。客户端只允许 HTTPS，或 IP 字面量回环 HTTP；禁止重定向，不自动重试。示例服务只监听 127.0.0.1，服务进程的 `MEMORY_SERVICE_PORT` 决定端口；`MEMORY_SERVICE_CONSUMER_URL` 是运维登记的本地测试接收端，不能由请求替换。
 

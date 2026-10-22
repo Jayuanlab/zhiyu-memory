@@ -1,0 +1,4 @@
+interface:
+  display_name: "知语记忆接入"
+  short_description: "评估传统项目的记忆机会，设计来源适配与改造方案，并实施验证单个业务场景"
+  default_prompt: "使用 $zhiyu-memory-onboarding 评估当前项目的记忆接入机会，定位来源与权限缺口，并给出一个场景的具体改造方案。"

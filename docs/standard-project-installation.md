@@ -1,0 +1,11 @@
+# Trusted standard project installations
+
+The standard service can host operator-installed source/policy adapters alongside its existing development project. Set `MEMORY_SERVICE_STANDARD_PROJECTS_FILE` to an operator-owned JSON array. Each entry contains `namespace: {tenantId, projectId}` and an absolute `modulePath`. The module exports `createStandardProject(ports, entry)` returning `forSession(session)`.
+
+`apps/service/standard-projects.ts` passes the running service's SQL connection, credential authorization/binding, authenticated session resolver, semantic search configuration, knowledge host/store factories and error factory. Modules are trusted server code and may access these resources. Never accept registry entries or module paths from HTTP input. Duplicate namespaces and malformed installation entries fail startup. This hook belongs to standard mode; `MEMORY_SERVICE_PROJECT_MODULE` continues to select the separate installed-operation mode.
+
+Routing uses the authenticated credential namespace, not request JSON. Namespaces without a standard installation retain the previous development-project behavior and its existing authorization. Adding an installation does not reuse development member/source grants or issue credentials. The project must supply transactional members, sources, source grants, classification policy and audit behavior. Consumers and identity permissions must be explicitly installed; a module must not grant itself review/use privileges through a request.
+
+The local operator installed the Zhiyu task-procedure pilot on port 3642 using a separate namespace, three dedicated operational identities and project-specific source/member/grant/event tables. Its trusted registry and credentials are external private operator files under the Zhiyu workspace, not this repository's memory-lab profile. Existing local startup reads the updated service environment and supervised restart retains PostgreSQL data. Detailed project acceptance lives in the Zhiyu repository at `docs/verification/task-knowledge-live-2026-10-22.md`.
+
+This is a local trusted-module installation hook, not an unauthenticated project-registration API, a sandbox for third-party code, or a database migration tool. Remove the registry environment setting and restart to restore the previous composition while retaining project records and audit history.

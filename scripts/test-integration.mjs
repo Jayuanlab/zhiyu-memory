@@ -10,7 +10,7 @@ const sql=postgres(adminUrl,{max:1,onnotice:()=>{}});
 fs.mkdirSync('.runtime',{recursive:true});
 const results=[];
 try {
- for(const [name,entry] of [['local','examples/memory-project/acceptance.ts'],['remote','examples/memory-project/service-acceptance.ts'],['quickstart','scripts/smoke-quickstart.mjs']]){
+ for(const [name,entry] of [['local','examples/memory-project/acceptance.ts'],['remote','examples/memory-project/service-acceptance.ts'],['vector','examples/memory-project/vector-acceptance.ts'],['quickstart','scripts/smoke-quickstart.mjs']]){
   const database='zhiyu_test_'+randomUUID().replaceAll('-','');
   assert.match(database,/^zhiyu_test_[a-f0-9]{32}$/);
   const url=new URL(adminUrl);url.pathname='/'+database;

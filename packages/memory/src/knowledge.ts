@@ -13,6 +13,7 @@ import {
 } from "./governance";
 import { budgetContextPack, selectRecallCandidates } from "./context";
 import { createUseGuard } from "./use";
+import { parseRetrieval, retrieveKnowledge, type SemanticSearch } from "./semantic-search";
 import type {
 	KnowledgeRecord,
 	KnowledgeSourceRef,
@@ -34,6 +35,8 @@ export type KnowledgeInstallation = {
 	now?: () => Date;
 	/** Trusted host only: stable credential id + authorization epoch; never client supplied. */
 	remoteBinding?: (identity: Identity) => string;
+	/** Trusted opt-in: qualified knowledge text and queries are sent to this provider. */
+	semanticSearch?: SemanticSearch;
 };
 const same = (a: Namespace, b: Namespace) =>
 	a.tenantId === b.tenantId && a.projectId === b.projectId;
@@ -222,6 +225,15 @@ export function createKnowledgeHost<Session>(
 						version: installation.policy.version,
 					},
 					consumers: Object.keys(installation.consumers),
+					retrieval: {
+						modes: installation.semanticSearch ? ["keyword", "vector", "hybrid"] : ["keyword"],
+						defaultMode: installation.semanticSearch?.defaultMode ?? "keyword",
+						...(installation.semanticSearch ? {
+							embeddingProvider: installation.semanticSearch.provider.id,
+							dimensions: installation.semanticSearch.provider.dimensions,
+							minSimilarity: installation.semanticSearch.minSimilarity ?? 0.3,
+						} : {}),
+					},
 					remoteUse: installation.remoteBinding
 						? {
 								transport: "general-memory.http.v1",
@@ -650,7 +662,7 @@ export function createKnowledgeHost<Session>(
 				},
 				async recall(value: unknown): Promise<KnowledgePack> {
 					const q = object(value);
-					keys(q, ["scope", "query", "maxBytes"]);
+					keys(q, ["scope", "query", "maxBytes", "retrieval"]);
 					const scope = text(q.scope, 200),
 						query = text(q.query, 2000);
 					const maxBytes = q.maxBytes ?? 8192;
@@ -660,34 +672,35 @@ export function createKnowledgeHost<Session>(
 						Number(maxBytes) > 65536
 					)
 						fail("invalid_request");
+					const retrieval = parseRetrieval(q.retrieval, installation.semanticSearch);
 					const result = await operation("recall", async (tx) => {
-						const candidates = await tx.list(identity, scope, 100),
-							omissions: Array<{ id: string; reason: string }> = [],
-							ranked: KnowledgeRecord[] = [];
-						for (const r of candidates) {
-							try {
+						const sourceDeadlines = new Map<string, string[]>();
+						const checkCurrent = (r: KnowledgeRecord) => {
+							checkRecord(r);
+							if (sourceDeadlines.get(r.id)?.some((deadline) => Date.parse(deadline) <= now().getTime()))
+								fail("source_expired", 409);
+						};
+						const { ranked, omissions, omissionCount: withheldCount } = await retrieveKnowledge({
+							tx, identity, scope, query, retrieval, settings: installation.semanticSearch,
+							qualify: async (r) => {
 								checkRecord(r);
-								await qualify(tx, identity, r);
-								ranked.push(r);
-							} catch (e) {
-								if (!(e instanceof MemoryError) || e.status >= 500) throw e;
-								omissions.push({ id: r.id, reason: String(e.code) });
-							}
-						}
-						ranked.sort(
-							(a, b) =>
-								Number(b.content.includes(query)) -
-									Number(a.content.includes(query)) || a.id.localeCompare(b.id),
-						);
+								sourceDeadlines.set(r.id, await qualify(tx, identity, r));
+								checkCurrent(r);
+							},
+							checkCurrent,
+						});
+						let omissionCount = withheldCount;
 						const selected = selectRecallCandidates({
 							ranked,
-							maxItems: 12,
+							maxItems: 12 + ranked.filter((r) => r.recordType === "constraint").length,
 							group: (r) => r.rootId,
 							priority: (r) => r.recordType === "constraint",
 							reserve: () => false,
 							reserveLimit: 0,
-							onDuplicate: (r) =>
-								omissions.push({ id: r.id, reason: "duplicate_group" }),
+							onDuplicate: (r) => {
+								omissionCount++;
+								if (omissions.length < 8) omissions.push({ id: r.id, reason: "duplicate_group" });
+							},
 							onReserved: () => {},
 						});
 						const receiptId = randomUUID(),
@@ -728,12 +741,13 @@ export function createKnowledgeHost<Session>(
 										"A candidate was withheld; inspect governance and current evidence.",
 								})),
 								omissions,
+								...(omissionCount > omissions.length ? { omissionSummary: { total: omissionCount, reported: omissions.length } } : {}),
 								receiptId,
 								budget: {
 									maxTokens: Number(maxBytes),
 									usedUpperBound: 0,
 									unit: "utf8_bytes_upper_bound",
-									truncated: false,
+									truncated: omissionCount > omissions.length,
 								},
 								coverage: {
 									candidateCoverage: "bounded",
@@ -750,12 +764,17 @@ export function createKnowledgeHost<Session>(
 							kind: "recall",
 							createdAt: now().toISOString(),
 							data: {
+								retrieval: {
+									...retrieval,
+									...(retrieval.mode !== "keyword" ? { provider: installation.semanticSearch!.provider.id } : {}),
+								},
 								refs: [
 									...budgeted.constraints,
 									...budgeted.interpretations,
 									...budgeted.historicalEvidence,
 								].map((e) => e.ref),
 								omissions,
+								omissionCount,
 								budget: budgeted.budget,
 							},
 						});

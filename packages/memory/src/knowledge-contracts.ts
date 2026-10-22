@@ -85,6 +85,8 @@ export type KnowledgePack = {
 	constraints: KnowledgeEntry[];
 	openQuestions: Array<{ code: string; detail: string }>;
 	omissions: Array<{ id: string; reason: string }>;
+	/** Present when bounded diagnostics do not include every withheld candidate. */
+	omissionSummary?: { total: number; reported: number };
 	receiptId: string;
 	budget: {
 		maxTokens: number;
@@ -105,6 +107,13 @@ export type KnowledgeAudit = {
 	data: Record<string, unknown>;
 };
 export interface KnowledgeTransaction {
+	/** Stable cursor scan for semantic retrieval; namespace isolation is mandatory. */
+	scan?(identity: Identity, scope: string, afterId: string | undefined, limit: number): Promise<KnowledgeRecord[]>;
+	/** Derived search data only. Reads must match both embedding space and input digest. */
+	embeddings?: {
+		get(identity: Identity, recordId: string, spaceId: string, inputHash: string): Promise<number[] | null>;
+		put(identity: Identity, recordId: string, spaceId: string, inputHash: string, vector: readonly number[]): Promise<void>;
+	};
 	/** Optional durable remote-use repository. All methods share this transaction. */
 	remoteUse?: {
 		insert(identity: Identity, ticket: RemoteUseTicket): Promise<void>;

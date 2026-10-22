@@ -2,6 +2,14 @@
 
 面向智能体和业务项目的可追溯记忆服务。它保存原始观测，将有依据、经审核的理解作为长期知识，按任务生成有界 ContextPack，并在交给登记消费者前重新核验来源、权限和期限。
 
+智能体接入与调用请先阅读 [记忆服务智能体使用说明](docs/agent-guide.md)，了解能力发现、写入审核、向量召回、受控交付和失败恢复。仓库的 [AGENTS.md](AGENTS.md) 提供文档入口；部署与项目适配继续按下文进行。
+
+也可使用仓库内的 [zhiyu-memory Skill](skills/zhiyu-memory/SKILL.md)：整个目录可复制到宿主技能目录，包含独立 Node.js 调用脚本、项目配置模板和协议参考，不依赖仓库运行路径。配置当前项目的服务地址、预期 namespace 和凭证环境变量后，可用 `$zhiyu-memory` 发起记忆任务；服务部署和来源接入仍需先完成。
+
+Windows 本机实例的启动、停止、Skill 配置和真实模型验收见 [本机部署说明](docs/local-runtime.md)。本机方案使用独立 Docker PostgreSQL 与本地多语言 ONNX 模型，配置和凭证保存在忽略目录中。
+
+传统项目首次接入可使用独立的 [zhiyu-memory-onboarding Skill](skills/zhiyu-memory-onboarding/SKILL.md)：评估业务场景与记忆机会、设计来源和权限适配、实施验证单个场景。使用示例和能力范围见 [项目接入 Skill](docs/memory-onboarding.md)，日常记忆读写仍使用 `zhiyu-memory`。
+
 从知语项目提取，独立安装、独立 Node 进程运行、使用自己的 PostgreSQL 数据库；运行不需要知语、Next.js、Brain、Work 或 Loop。当前为 **0.1.0 / v1-draft**，保留 `@openzhiyu/memory` 包名便于追溯，尚未发布 npm 包。知语现有部署继续使用本地 Adapter，此仓库的创建不会自动切换它。
 
 ## 为什么需要它
@@ -144,6 +152,12 @@ await client.request('/v1/use/dispatch', {
 
 详细命令、身份管理与恢复流程见 [远程接入协议](docs/protocol.md)，[项目 Adapter 示例](examples/memory-project/README.md) 和 [提取与验证说明](docs/extraction.md)。TypeScript 类型和严格解析器是具体字段的依据。
 
+## 向量与混合检索
+
+可通过 `MEMORY_EMBEDDING_URL`、`MEMORY_EMBEDDING_MODEL`、`MEMORY_EMBEDDING_DIMENSIONS` 配置 embedding 服务，按需注入 `MEMORY_EMBEDDING_API_KEY`。默认研发服务配置后启用混合召回；未配置时保持原有关键词模式。调用方可在 `/v1/recall` 或 `/v1/use/prepare` 的召回参数中传入 `retrieval: { mode: "vector", minSimilarity: 0.65 }`，按余弦相似度过滤知识。
+
+向量缓存保存在 PostgreSQL，旧知识首次语义召回时自动补齐；模型或正文变化后重新生成。向量/混合模式分页遍历 scope，保留审核、来源、权限、到期核验和完整安全约束。当前使用精确扫描，无需 pgvector；首次构建缓存和大范围召回会增加耗时。初始化升级、配置、模式差异和自定义项目接入见 [向量检索说明](docs/semantic-search.md)。
+
 ## 身份与运行边界
 
 已有业务项目的兼容部署可安装受信项目模块，并使用独立身份/传输审计库；见[项目安装与监督部署](docs/installed-projects.md)。此模式按安装模块声明实际覆盖范围，不能把默认研发示例的表直接作为已有项目的数据迁移。
@@ -154,7 +168,7 @@ await client.request('/v1/use/dispatch', {
 - 数据库管理员属于受信边界。当前为 namespace 过滤与受控事务隔离，不宣称向不可信 SQL 用户开放数据库安全隔离。
 - U 保护已登记的知识 Pack 交付。原始观测精确读取属于 R；调用方在服务外私自发送已读内容的链路不受此网关保护。
 - 默认服务仅监听 `127.0.0.1`，默认消费者仅允许本地回环 HTTP。跨机器部署需受控 TLS 反向代理，并由项目安装层登记消费者；还需安排备份恢复、凭证保管、日志告警和进程托管。
-- 不包含自动模型提炼、向量服务、管理前端或知语业务数据迁移。恢复授权不会复活旧使用凭证；已交付的内容不能撤回。
+- 不包含自动模型提炼、内置 embedding 模型、管理前端或知语业务数据迁移；向量检索需显式配置 embedding 提供方。恢复授权不会复活旧使用凭证；已交付的内容不能撤回。
 
 ## 来源与许可
 

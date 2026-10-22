@@ -6,7 +6,7 @@ import {
 	initializeObservationSchema,
 	createPostgresObservationStore,
 } from "../../packages/memory-postgres/src/index";
-import { createKnowledgeHost } from "../../packages/memory/src/knowledge";
+import { createKnowledgeHost, type KnowledgeInstallation } from "../../packages/memory/src/knowledge";
 import type { KnowledgePack } from "../../packages/memory/src/knowledge-contracts";
 import type { Identity } from "../../packages/memory/src/ports";
 import { fail } from "../../packages/memory/src/validation";
@@ -41,6 +41,7 @@ export function createDevelopmentProject(
 			operation: string,
 		) => Promise<void>;
 		remoteBinding?: (identity: Identity) => string;
+		semanticSearch?: KnowledgeInstallation["semanticSearch"];
 	},
 ) {
 	const sessions = new WeakMap<object, Identity>();
@@ -116,6 +117,7 @@ export function createDevelopmentProject(
 			store,
 			policy: developmentMemoryPolicy,
 			remoteBinding: options.remoteBinding,
+			semanticSearch: options.semanticSearch,
 			now: options.now,
 			sources: [
 				{

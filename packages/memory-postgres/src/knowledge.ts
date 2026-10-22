@@ -20,6 +20,10 @@ export async function initializeKnowledgeSchema(sql: Sql) {
 		await tx`CREATE TABLE IF NOT EXISTS general_memory_knowledge_g4 (
       tenant_id text NOT NULL,project_id text NOT NULL,id text NOT NULL,scope text NOT NULL,fingerprint text NOT NULL,record jsonb NOT NULL,
       PRIMARY KEY(tenant_id,project_id,id))`;
+		await tx`CREATE TABLE IF NOT EXISTS general_memory_embeddings_g6 (
+      tenant_id text NOT NULL,project_id text NOT NULL,record_id text NOT NULL,space_id text NOT NULL,input_hash text NOT NULL,vector double precision[] NOT NULL,
+      PRIMARY KEY(tenant_id,project_id,record_id,space_id),
+      CHECK(array_ndims(vector)=1 AND cardinality(vector)>0))`;
 		await tx`CREATE TABLE IF NOT EXISTS general_memory_knowledge_history_g4 (
       tenant_id text NOT NULL,project_id text NOT NULL,id text NOT NULL,version text NOT NULL,record jsonb NOT NULL,
       PRIMARY KEY(tenant_id,project_id,id,version))`;
@@ -75,6 +79,20 @@ export function createPostgresKnowledgeStore(
 		): Promise<T> {
 			return (await sql.begin(async (tx) =>
 				work({
+					embeddings: {
+						get: async (i, recordId, spaceId, inputHash) => {
+							const n = i.namespace,
+								[r] =
+									await tx`SELECT vector FROM general_memory_embeddings_g6 WHERE tenant_id=${n.tenantId} AND project_id=${n.projectId} AND record_id=${recordId} AND space_id=${spaceId} AND input_hash=${inputHash}`;
+							return r ? (r.vector as number[]) : null;
+						},
+						put: async (i, recordId, spaceId, inputHash, vector) => {
+							if (!vector.length || vector.some((value) => !Number.isFinite(value)))
+								throw Error("invalid_embedding_vector");
+							const n = i.namespace;
+							await tx`INSERT INTO general_memory_embeddings_g6(tenant_id,project_id,record_id,space_id,input_hash,vector) VALUES(${n.tenantId},${n.projectId},${recordId},${spaceId},${inputHash},${tx.array(Array.from(vector), 701)}::double precision[]) ON CONFLICT(tenant_id,project_id,record_id,space_id) DO UPDATE SET input_hash=EXCLUDED.input_hash,vector=EXCLUDED.vector`;
+						},
+					},
 					remoteUse: {
 						insert: async (i, ticket) => {
 							const n = i.namespace;
@@ -131,6 +149,15 @@ export function createPostgresKnowledgeStore(
 						return (
 							await tx`SELECT record FROM general_memory_knowledge_g4 WHERE tenant_id=${n.tenantId} AND project_id=${n.projectId} AND scope=${scope} ORDER BY id LIMIT ${limit} FOR SHARE`
 						).map((r) => r.record as KnowledgeRecord);
+					},
+					scan: async (i, scope, afterId, limit) => {
+						if (!Number.isSafeInteger(limit) || limit < 1 || limit > 1000)
+							throw Error("invalid_knowledge_scan_limit");
+						const n = i.namespace;
+						const rows = afterId === undefined
+							? await tx`SELECT record FROM general_memory_knowledge_g4 WHERE tenant_id=${n.tenantId} AND project_id=${n.projectId} AND scope=${scope} ORDER BY id LIMIT ${limit} FOR SHARE`
+							: await tx`SELECT record FROM general_memory_knowledge_g4 WHERE tenant_id=${n.tenantId} AND project_id=${n.projectId} AND scope=${scope} AND id>${afterId} ORDER BY id LIMIT ${limit} FOR SHARE`;
+						return rows.map((r) => r.record as KnowledgeRecord);
 					},
 					saveRecord: async (i, r) => {
 						const n = i.namespace;

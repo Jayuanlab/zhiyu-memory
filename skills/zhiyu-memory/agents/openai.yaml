@@ -1,0 +1,4 @@
+interface:
+  display_name: "知语记忆服务"
+  short_description: "连接知语记忆服务，保存原始证据、治理长期知识并执行向量检索"
+  default_prompt: "使用 $zhiyu-memory 按当前项目配置检索与本次任务相关的有效记忆。"

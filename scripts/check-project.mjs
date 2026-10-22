@@ -6,8 +6,8 @@ function walk(dir){for(const entry of fs.readdirSync(dir,{withFileTypes:true})){
  const file=path.join(dir,entry.name);
  if(entry.isDirectory()){if(entry.name!=='node_modules')walk(file);}else files.push(file);
 }}
-for(const dir of ['packages','apps','examples','scripts','docs'])walk(dir);
-for(const file of [...files,'README.md']){
+for(const dir of ['packages','apps','examples','scripts','docs','skills'])walk(dir);
+for(const file of [...files,'README.md','AGENTS.md']){
  const text=new TextDecoder('utf-8',{fatal:true}).decode(fs.readFileSync(file));
  // Tests intentionally assert rejection of the replacement character in returned data.
  if(file.endsWith('.md'))assert.ok(!text.includes('\uFFFD'),file+': invalid documentation text');
